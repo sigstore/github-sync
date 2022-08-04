@@ -1,0 +1,49 @@
+name: Reusable GitHub Sync PR
+description: |
+  This action runs the pulumi preview when opening a PR.
+
+inputs:
+  work_dir:
+    required: false
+    description: 'Where the Pulumi config are located.'
+  config_directory:
+    required: false
+    description: 'Where the Github config are located.'
+  stack_name:
+    required: true
+    description: 'Pulumi stack name.'
+  pulumi_access_token:
+    required: true
+    description: 'Secret for accessing Pulumi.'
+  pulumi_command:
+    required: true
+    description: 'What command to run when running Pulumi action. Options: preview and up.(default: preview)'
+    default: 'preview'
+
+runs:
+  using: "composite"
+
+  steps:
+    - uses: actions/setup-go@b22fbbc2921299758641fab08929b4ac52b32923 # v3
+      with:
+        go-version: 1.18
+        check-latest: true
+
+    - name: Set env
+      run: echo "PULUMI_GO_CODE=${GITHUB_ACTION_PATH}" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Copy config to run pulumi
+      run: |
+        cp -r ${{ inputs.config_directory }} $GITHUB_ACTION_PATH
+        cp ${{ inputs.work_dir }}/Pulumi*.yaml $GITHUB_ACTION_PATH
+      shell: bash
+
+    - uses: pulumi/actions@d1936f654af277244c132c9c0cbb42c7ad81050a # v3
+      with:
+        command: '${{ inputs.pulumi_command }}'
+        stack-name: '${{ inputs.stack_name }}'
+        refresh: false
+        work-dir: '${{ env.PULUMI_GO_CODE }}'
+      env:
+        PULUMI_ACCESS_TOKEN: ${{ inputs.pulumi_access_token }}
