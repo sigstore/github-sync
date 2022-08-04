@@ -1,0 +1,2 @@
+# Sigstore Github Sync
+
