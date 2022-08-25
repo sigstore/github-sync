@@ -19,6 +19,13 @@ inputs:
     required: true
     description: 'What command to run when running Pulumi action. Options: preview and up.(default: preview)'
     default: 'preview'
+  comment_on_pr:
+    required: false
+    description: 'Used when doing a Pulumi preview for Pull Requests'
+    default: 'false'
+  gh_token:
+    required: true
+    description: 'GitHub Token with pull_request scope to be able to post comments in the PR'
 
 runs:
   using: "composite"
@@ -45,5 +52,7 @@ runs:
         stack-name: '${{ inputs.stack_name }}'
         refresh: false
         work-dir: '${{ env.PULUMI_GO_CODE }}'
+        comment-on-pr: ${{ inputs.comment_on_pr }}
+        github-token: ${{ inputs.gh_token }}
       env:
         PULUMI_ACCESS_TOKEN: ${{ inputs.pulumi_access_token }}
