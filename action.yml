@@ -46,6 +46,11 @@ runs:
         cp ${{ inputs.work_dir }}/Pulumi*.yaml $GITHUB_ACTION_PATH
       shell: bash
 
+    - name: Go mod download
+      run: go mod download
+      working-directory: '${{ env.PULUMI_GO_CODE }}'
+      shell: bash
+
     - uses: pulumi/actions@23bfa180ddeb81dd7cf0b181e2d8abe4cd2623ae # v3.19.0
       with:
         command: '${{ inputs.pulumi_command }}'
