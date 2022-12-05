@@ -166,12 +166,6 @@ func main() {
 					RequiredLinearHistory:         pulumi.Bool(protection.RequiredLinearHistory),
 					RequireSignedCommits:          pulumi.Bool(protection.RequireSignedCommits),
 					RequireConversationResolution: pulumi.Bool(protection.RequireConversationResolution),
-					RequiredStatusChecks: github.BranchProtectionRequiredStatusCheckArray{
-						&github.BranchProtectionRequiredStatusCheckArgs{
-							Strict:   pulumi.Bool(protection.RequireBranchesUpToDate),
-							Contexts: pulumi.ToStringArray(protection.StatusChecks),
-						},
-					},
 					RequiredPullRequestReviews: github.BranchProtectionRequiredPullRequestReviewArray{
 						&github.BranchProtectionRequiredPullRequestReviewArgs{
 							DismissStaleReviews:          pulumi.Bool(protection.DismissStaleReviews),
