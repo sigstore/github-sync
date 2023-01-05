@@ -129,63 +129,9 @@ func main() {
 				}
 			}
 
-			newRepo, err := github.NewRepository(ctx, repo.Name, repoSync, pulumi.Protect(true))
+			_, err := github.NewRepository(ctx, repo.Name, repoSync, pulumi.Protect(true))
 			if err != nil {
 				return err
-			}
-
-			for _, protection := range repo.BranchesProtection {
-				var pushRestrictionsID []string
-				for _, pushRestTeam := range protection.PushRestrictions {
-					team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
-						Slug: strings.ToLower(strings.ReplaceAll(pushRestTeam, " ", "-")),
-					}, nil)
-					if err != nil {
-						return err
-					}
-					pushRestrictionsID = append(pushRestrictionsID, team.NodeId)
-				}
-
-				var dismissalRestrictionsID []string
-				for _, dismissRestrictionTeam := range protection.DismissalRestrictions {
-					team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
-						Slug: strings.ToLower(strings.ReplaceAll(dismissRestrictionTeam, " ", "-")),
-					}, nil)
-					if err != nil {
-						return err
-					}
-					dismissalRestrictionsID = append(dismissalRestrictionsID, team.NodeId)
-				}
-
-				_, err = github.NewBranchProtection(ctx, fmt.Sprintf("%s-%s", repo.Name, protection.Pattern), &github.BranchProtectionArgs{
-					RepositoryId:                  newRepo.NodeId,
-					Pattern:                       pulumi.String(protection.Pattern),
-					EnforceAdmins:                 pulumi.Bool(protection.EnforceAdmins),
-					AllowsDeletions:               pulumi.Bool(protection.AllowsDeletions),
-					AllowsForcePushes:             pulumi.Bool(protection.AllowsForcePushes),
-					RequiredLinearHistory:         pulumi.Bool(protection.RequiredLinearHistory),
-					RequireSignedCommits:          pulumi.Bool(protection.RequireSignedCommits),
-					RequireConversationResolution: pulumi.Bool(protection.RequireConversationResolution),
-					RequiredStatusChecks: github.BranchProtectionRequiredStatusCheckArray{
-						&github.BranchProtectionRequiredStatusCheckArgs{
-							Strict:   pulumi.Bool(protection.RequireBranchesUpToDate),
-							Contexts: pulumi.ToStringArray(protection.StatusChecks),
-						},
-					},
-					RequiredPullRequestReviews: github.BranchProtectionRequiredPullRequestReviewArray{
-						&github.BranchProtectionRequiredPullRequestReviewArgs{
-							DismissStaleReviews:          pulumi.Bool(protection.DismissStaleReviews),
-							RestrictDismissals:           pulumi.Bool(protection.RestrictDismissals),
-							RequireCodeOwnerReviews:      pulumi.Bool(protection.RequireCodeOwnerReviews),
-							RequiredApprovingReviewCount: pulumi.Int(protection.RequiredApprovingReviewCount),
-							DismissalRestrictions:        pulumi.ToStringArray(dismissalRestrictionsID),
-						},
-					},
-					PushRestrictions: pulumi.ToStringArray(pushRestrictionsID),
-				})
-				if err != nil {
-					return err
-				}
 			}
 
 			for _, collaborator := range repo.Collaborators {
