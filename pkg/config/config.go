@@ -87,6 +87,7 @@ type BranchProtection struct {
 	RequireConversationResolution bool     `yaml:"requireConversationResolution"`
 	RequireCodeOwnerReviews       bool     `yaml:"requireCodeOwnerReviews"`
 	RequiredApprovingReviewCount  int      `yaml:"requiredApprovingReviewCount"`
+	RequireLastPushApproval       bool     `yaml:"requireLastPushApproval"``
 	StatusChecks                  []string `yaml:"statusChecks"`
 	RequireBranchesUpToDate       bool     `yaml:"requireBranchesUpToDate"`
 	PushRestrictions              []string `yaml:"pushRestrictions"`
