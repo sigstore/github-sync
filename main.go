@@ -179,6 +179,7 @@ func main() {
 							RequireCodeOwnerReviews:      pulumi.Bool(protection.RequireCodeOwnerReviews),
 							RequiredApprovingReviewCount: pulumi.Int(protection.RequiredApprovingReviewCount),
 							DismissalRestrictions:        pulumi.ToStringArray(dismissalRestrictionsID),
+							RequireLastPushApproval:      pulumi.Bool(protection.RequireLastPushApproval),
 						},
 					},
 					PushRestrictions: pulumi.ToStringArray(pushRestrictionsID),
