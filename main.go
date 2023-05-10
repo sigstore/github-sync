@@ -91,6 +91,7 @@ func main() {
 				AllowSquashMerge:    pulumi.Bool(repo.AllowSquashMerge),
 				AutoInit:            pulumi.Bool(repo.AutoInit),
 				DeleteBranchOnMerge: pulumi.Bool(repo.DeleteBranchOnMerge),
+				HasDiscussions:      pulumi.Bool(repo.HasDiscussions),
 				HasDownloads:        pulumi.Bool(repo.HasDownloads),
 				HasIssues:           pulumi.Bool(repo.HasIssues),
 				HasProjects:         pulumi.Bool(repo.HasProjects),

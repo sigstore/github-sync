@@ -32,6 +32,7 @@ type Repository struct {
 	Archived            bool               `yaml:"archived"`
 	AutoInit            bool               `yaml:"autoInit"`
 	DeleteBranchOnMerge bool               `yaml:"deleteBranchOnMerge"`
+	HasDiscussions      bool               `yaml:"hasDiscussions"`
 	HasDownloads        bool               `yaml:"hasDownloads"`
 	HasIssues           bool               `yaml:"hasIssues"`
 	HasProjects         bool               `yaml:"hasProjects"`

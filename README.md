@@ -64,6 +64,7 @@ example:
   archived: true|false # optional
   autoInit: true|false # optional
   deleteBranchOnMerge: true|false # optional
+  hasDiscussions: true|false # optional
   hasDownloads: true|false # optional
   hasIssues: true|false # optional
   hasProjects: true|false # optional
