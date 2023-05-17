@@ -55,7 +55,7 @@ func main() {
 				Privacy:                 pulumi.String(team.Privacy),
 			}
 			if team.ParentTeamID != 0 {
-				teamArgs.ParentTeamId = pulumi.Int(team.ParentTeamID)
+				teamArgs.ParentTeamId = pulumi.String(fmt.Sprintf("%d", team.ParentTeamID))
 			}
 			syncedTeam, err := github.NewTeam(ctx, syncedTeams, teamArgs, pulumi.Protect(true))
 			if err != nil {
