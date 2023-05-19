@@ -84,7 +84,7 @@ func main() {
 			repoSync := &github.RepositoryArgs{
 				Name:                pulumi.String(repo.Name),
 				Description:         pulumi.String(repo.Description),
-				HomepageUrl:         pulumi.String(repo.HomepageUrl),
+				HomepageUrl:         pulumi.String(repo.HomepageURL),
 				AllowAutoMerge:      pulumi.Bool(repo.AllowAutoMerge),
 				AllowMergeCommit:    pulumi.Bool(repo.AllowMergeCommit),
 				AllowRebaseMerge:    pulumi.Bool(repo.AllowRebaseMerge),
