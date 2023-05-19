@@ -1,5 +1,5 @@
 #
-# Copyright 2022 The Sigstore Authors.
+# Copyright 2023 The Sigstore Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,16 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: 2
-updates:
-  - package-ecosystem: gomod
-    directory: "/"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-
-  - package-ecosystem: github-actions
-    directory: "/"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
+---
+linters:
+  enable:
+    - asciicheck
+    - unused
+    - depguard
+    - errcheck
+    - errorlint
+    - forbidigo
+    - gofmt
+    - goimports
+    - gosec
+    - gocritic
+    - importas
+    - prealloc
+    - revive
+    - misspell
+    - stylecheck
+    - tparallel
+    - unconvert
+    - unparam
+    - whitespace
+output:
+  uniq-by-line: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+run:
+  issues-exit-code: 1
+  timeout: 10m

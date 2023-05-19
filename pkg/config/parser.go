@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,15 +22,15 @@ func NewParser() *Parser {
 	}
 }
 
-func (p *Parser) Parse(reader io.Reader, path string) error {
+func (p *Parser) Parse(reader io.Reader) error {
 	var c Config
-	content, err := ioutil.ReadAll(reader)
+	content, err := io.ReadAll(reader)
 	if err != nil {
-		return fmt.Errorf("failed to read bytes: %v", err)
+		return fmt.Errorf("failed to read bytes: %w", err)
 	}
 
 	if err := yaml.UnmarshalStrict(content, &c); err != nil {
-		return fmt.Errorf("failed to parse yaml: %v", err)
+		return fmt.Errorf("failed to parse yaml: %w", err)
 	}
 
 	if c.Users != nil {
@@ -56,7 +55,7 @@ func (p *Parser) ParseFile(path, basedir string) error {
 	p.parsed[path] = struct{}{}
 	f, err := os.Open(path)
 	if err != nil {
-		return fmt.Errorf("failed to open %s: %v", path, err)
+		return fmt.Errorf("failed to open %s: %w", path, err)
 	}
 	defer f.Close()
 
@@ -64,8 +63,8 @@ func (p *Parser) ParseFile(path, basedir string) error {
 		return fmt.Errorf("%q is not a prefix of %q", basedir, path)
 	}
 
-	if err := p.Parse(f, path[len(basedir):]); err != nil {
-		return fmt.Errorf("failed to parse %s: %v", path, err)
+	if err := p.Parse(f); err != nil {
+		return fmt.Errorf("failed to parse %s: %w", path, err)
 	}
 
 	return nil
@@ -74,7 +73,7 @@ func (p *Parser) ParseFile(path, basedir string) error {
 func (p *Parser) ParseDir(path string) error {
 	matches, err := doublestar.Glob(filepath.Join(path, "**/*.yaml"))
 	if err != nil {
-		return fmt.Errorf("failed to find config files: %v", err)
+		return fmt.Errorf("failed to find config files: %w", err)
 	}
 
 	for _, f := range matches {
