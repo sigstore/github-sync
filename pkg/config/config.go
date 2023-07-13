@@ -38,6 +38,7 @@ type Repository struct {
 	HasProjects         bool               `yaml:"hasProjects"`
 	HasWiki             bool               `yaml:"hasWiki"`
 	VulnerabilityAlerts bool               `yaml:"vulnerabilityAlerts"`
+	DefaultBranch       string             `yaml:"defaultBranch"`
 	Visibility          string             `yaml:"visibility"`
 	Name                string             `yaml:"name"`
 	Owner               string             `yaml:"owner"`

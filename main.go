@@ -135,6 +135,14 @@ func main() {
 				return err
 			}
 
+			_, err = github.NewBranchDefault(ctx, repo.Name, &github.BranchDefaultArgs{
+				Branch:     pulumi.String(repo.DefaultBranch),
+				Repository: pulumi.String(repo.Name),
+			})
+			if err != nil {
+				return err
+			}
+
 			for _, protection := range repo.BranchesProtection {
 				var pushRestrictionsID []string
 				for _, pushRestTeam := range protection.PushRestrictions {
