@@ -145,14 +145,19 @@ func main() {
 
 			for _, protection := range repo.BranchesProtection {
 				var pushRestrictionsID []string
-				for _, pushRestTeam := range protection.PushRestrictions {
+				for _, pushRestTeamOrUser := range protection.PushRestrictions {
 					team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
-						Slug: strings.ToLower(strings.ReplaceAll(pushRestTeam, " ", "-")),
+						Slug: strings.ToLower(strings.ReplaceAll(pushRestTeamOrUser, " ", "-")),
 					}, nil)
 					if err != nil {
-						return err
+						user, err := github.GetUser(ctx, &github.GetUserArgs{Username: pushRestTeamOrUser})
+						if err != nil {
+							return err
+						}
+						pushRestrictionsID = append(pushRestrictionsID, user.NodeId)
+					} else {
+						pushRestrictionsID = append(pushRestrictionsID, team.NodeId)
 					}
-					pushRestrictionsID = append(pushRestrictionsID, team.NodeId)
 				}
 
 				var dismissalRestrictionsID []string
