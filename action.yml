@@ -35,6 +35,7 @@ runs:
       with:
         go-version: 1.19
         check-latest: true
+        cache-dependency-path: '${{ env.GITHUB_ACTION_PATH }}/go.sum'
 
     - name: Set env
       run: echo "PULUMI_GO_CODE=${GITHUB_ACTION_PATH}" >> $GITHUB_ENV
