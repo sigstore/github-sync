@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/pulumi/pulumi-github/sdk/v5 v5.15.0
-	github.com/pulumi/pulumi/sdk/v3 v3.77.1
+	github.com/pulumi/pulumi/sdk/v3 v3.78.1
 	sigs.k8s.io/yaml v1.3.0
 )
 
