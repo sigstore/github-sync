@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/bmatcuk/doublestar/v3 v3.0.0
-	github.com/pulumi/pulumi-github/sdk/v5 v5.17.0
+	github.com/pulumi/pulumi-github/sdk/v5 v5.19.0
 	github.com/pulumi/pulumi/sdk/v3 v3.85.0
 	sigs.k8s.io/yaml v1.3.0
 )
@@ -65,7 +65,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/texttheater/golang-levenshtein v1.0.1 // indirect
 	github.com/tweekmonster/luser v0.0.0-20161003172636-3fa38070dbd7 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
