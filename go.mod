@@ -1,6 +1,8 @@
 module github.com/sigstore/github-sync
 
-go 1.19
+go 1.21
+
+toolchain go1.21.1
 
 require (
 	github.com/bmatcuk/doublestar/v3 v3.0.0
