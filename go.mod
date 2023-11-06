@@ -6,7 +6,7 @@ toolchain go1.21.1
 
 require (
 	github.com/bmatcuk/doublestar/v3 v3.0.0
-	github.com/pulumi/pulumi-github/sdk/v5 v5.21.0
+	github.com/pulumi/pulumi-github/sdk/v5 v5.22.0
 	github.com/pulumi/pulumi/sdk/v3 v3.92.0
 	sigs.k8s.io/yaml v1.3.0
 )
