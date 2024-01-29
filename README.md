@@ -64,6 +64,7 @@ example:
   archived: true|false # optional
   autoInit: true|false # optional
   deleteBranchOnMerge: true|false # optional
+  hasDiscussions: true|false # optional
   hasDownloads: true|false # optional
   hasIssues: true|false # optional
   hasProjects: true|false # optional
@@ -118,6 +119,7 @@ branchesProtection:
     requireConversationResolution: true|false # optional
     restrictDismissals: true|false # optional
     requireBranchesUpToDate: true|false # optional
+    requireLastPushApproval: true|false #optional
     statusChecks:
       - DCO # optional. The name of the status checks that you want to be required for a PR.
     pushRestrictions:

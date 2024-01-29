@@ -55,7 +55,7 @@ func main() {
 				Privacy:                 pulumi.String(team.Privacy),
 			}
 			if team.ParentTeamID != 0 {
-				teamArgs.ParentTeamId = pulumi.StringPtr(fmt.Sprint(team.ParentTeamID))
+				teamArgs.ParentTeamId = pulumi.String(fmt.Sprintf("%d", team.ParentTeamID))
 			}
 			syncedTeam, err := github.NewTeam(ctx, syncedTeams, teamArgs, pulumi.Protect(true))
 			if err != nil {
@@ -135,16 +135,29 @@ func main() {
 				return err
 			}
 
+			_, err = github.NewBranchDefault(ctx, repo.Name, &github.BranchDefaultArgs{
+				Branch:     pulumi.String(repo.DefaultBranch),
+				Repository: pulumi.String(repo.Name),
+			})
+			if err != nil {
+				return err
+			}
+
 			for _, protection := range repo.BranchesProtection {
 				var pushRestrictionsID []string
-				for _, pushRestTeam := range protection.PushRestrictions {
+				for _, pushRestTeamOrUser := range protection.PushRestrictions {
 					team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
-						Slug: strings.ToLower(strings.ReplaceAll(pushRestTeam, " ", "-")),
+						Slug: strings.ToLower(strings.ReplaceAll(pushRestTeamOrUser, " ", "-")),
 					}, nil)
 					if err != nil {
-						return err
+						user, err := github.GetUser(ctx, &github.GetUserArgs{Username: pushRestTeamOrUser})
+						if err != nil {
+							return err
+						}
+						pushRestrictionsID = append(pushRestrictionsID, user.NodeId)
+					} else {
+						pushRestrictionsID = append(pushRestrictionsID, team.NodeId)
 					}
-					pushRestrictionsID = append(pushRestrictionsID, team.NodeId)
 				}
 
 				var dismissalRestrictionsID []string
@@ -180,6 +193,7 @@ func main() {
 							RequireCodeOwnerReviews:      pulumi.Bool(protection.RequireCodeOwnerReviews),
 							RequiredApprovingReviewCount: pulumi.Int(protection.RequiredApprovingReviewCount),
 							DismissalRestrictions:        pulumi.ToStringArray(dismissalRestrictionsID),
+							RequireLastPushApproval:      pulumi.Bool(protection.RequireLastPushApproval),
 						},
 					},
 					PushRestrictions: pulumi.ToStringArray(pushRestrictionsID),

@@ -37,6 +37,7 @@ type Repository struct {
 	HasProjects              bool               `yaml:"hasProjects"`
 	HasWiki                  bool               `yaml:"hasWiki"`
 	VulnerabilityAlerts      bool               `yaml:"vulnerabilityAlerts"`
+	DefaultBranch            string             `yaml:"defaultBranch"`
 	Visibility               string             `yaml:"visibility"`
 	Name                     string             `yaml:"name"`
 	Owner                    string             `yaml:"owner"`
@@ -88,6 +89,7 @@ type BranchProtection struct {
 	RequireConversationResolution bool     `yaml:"requireConversationResolution"`
 	RequireCodeOwnerReviews       bool     `yaml:"requireCodeOwnerReviews"`
 	RequiredApprovingReviewCount  int      `yaml:"requiredApprovingReviewCount"`
+	RequireLastPushApproval       bool     `yaml:"requireLastPushApproval"`
 	StatusChecks                  []string `yaml:"statusChecks"`
 	RequireBranchesUpToDate       bool     `yaml:"requireBranchesUpToDate"`
 	PushRestrictions              []string `yaml:"pushRestrictions"`
