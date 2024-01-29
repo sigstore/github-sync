@@ -42,7 +42,7 @@ type Repository struct {
 	Name                     string             `yaml:"name"`
 	Owner                    string             `yaml:"owner"`
 	Description              string             `yaml:"description"`
-	HomepageUrl              string             `yaml:"homepageUrl"`
+	HomepageURL              string             `yaml:"homepageUrl"`
 	LicenseTemplate          string             `yaml:"licenseTemplate"`
 	Topics                   []string           `yaml:"topics"`
 	Pages                    Pages              `yaml:"pages"`
