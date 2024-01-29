@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,7 +24,7 @@ func NewParser() *Parser {
 
 func (p *Parser) Parse(reader io.Reader, path string) error {
 	var c Config
-	content, err := ioutil.ReadAll(reader)
+	content, err := io.ReadAll(reader)
 	if err != nil {
 		return fmt.Errorf("failed to read bytes: %v", err)
 	}

@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	github "github.com/pulumi/pulumi-github/sdk/v4/go/github"
+	github "github.com/pulumi/pulumi-github/sdk/v5/go/github"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 
@@ -55,7 +55,7 @@ func main() {
 				Privacy:                 pulumi.String(team.Privacy),
 			}
 			if team.ParentTeamID != 0 {
-				teamArgs.ParentTeamId = pulumi.Int(team.ParentTeamID)
+				teamArgs.ParentTeamId = pulumi.StringPtr(fmt.Sprint(team.ParentTeamID))
 			}
 			syncedTeam, err := github.NewTeam(ctx, syncedTeams, teamArgs, pulumi.Protect(true))
 			if err != nil {
@@ -82,24 +82,25 @@ func main() {
 		for _, repo := range p.Config.Repositories {
 			// sync repos
 			repoSync := &github.RepositoryArgs{
-				Name:                pulumi.String(repo.Name),
-				Description:         pulumi.String(repo.Description),
-				HomepageUrl:         pulumi.String(repo.HomepageUrl),
-				AllowAutoMerge:      pulumi.Bool(repo.AllowAutoMerge),
-				AllowMergeCommit:    pulumi.Bool(repo.AllowMergeCommit),
-				AllowRebaseMerge:    pulumi.Bool(repo.AllowRebaseMerge),
-				AllowSquashMerge:    pulumi.Bool(repo.AllowSquashMerge),
-				AutoInit:            pulumi.Bool(repo.AutoInit),
-				DeleteBranchOnMerge: pulumi.Bool(repo.DeleteBranchOnMerge),
-				HasDownloads:        pulumi.Bool(repo.HasDownloads),
-				HasIssues:           pulumi.Bool(repo.HasIssues),
-				HasProjects:         pulumi.Bool(repo.HasProjects),
-				HasWiki:             pulumi.Bool(repo.HasWiki),
-				LicenseTemplate:     pulumi.String(repo.LicenseTemplate),
-				Topics:              pulumi.ToStringArray(repo.Topics),
-				VulnerabilityAlerts: pulumi.Bool(repo.VulnerabilityAlerts),
-				Visibility:          pulumi.String(repo.Visibility),
-				IsTemplate:          pulumi.Bool(repo.IsTemplate),
+				Name:                     pulumi.String(repo.Name),
+				Description:              pulumi.String(repo.Description),
+				HomepageUrl:              pulumi.String(repo.HomepageUrl),
+				AllowAutoMerge:           pulumi.Bool(repo.AllowAutoMerge),
+				AllowMergeCommit:         pulumi.Bool(repo.AllowMergeCommit),
+				AllowRebaseMerge:         pulumi.Bool(repo.AllowRebaseMerge),
+				AllowSquashMerge:         pulumi.Bool(repo.AllowSquashMerge),
+				AutoInit:                 pulumi.Bool(repo.AutoInit),
+				DeleteBranchOnMerge:      pulumi.Bool(repo.DeleteBranchOnMerge),
+				HasDownloads:             pulumi.Bool(repo.HasDownloads),
+				HasIssues:                pulumi.Bool(repo.HasIssues),
+				HasProjects:              pulumi.Bool(repo.HasProjects),
+				HasWiki:                  pulumi.Bool(repo.HasWiki),
+				LicenseTemplate:          pulumi.String(repo.LicenseTemplate),
+				Topics:                   pulumi.ToStringArray(repo.Topics),
+				VulnerabilityAlerts:      pulumi.Bool(repo.VulnerabilityAlerts),
+				Visibility:               pulumi.String(repo.Visibility),
+				IsTemplate:               pulumi.Bool(repo.IsTemplate),
+				WebCommitSignoffRequired: pulumi.Bool(repo.WebCommitSignoffRequired),
 			}
 
 			if repo.Pages.Branch != "" {
