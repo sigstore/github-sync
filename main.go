@@ -34,6 +34,19 @@ func main() {
 			log.Fatalf("Failed to load config: %v\n", err)
 		}
 
+		// sync custom roles
+		for _, customRole := range p.Config.CustomRoles {
+			roleArgs := &github.OrganizationCustomRoleArgs{
+				BaseRole:    pulumi.String(customRole.BaseRole),
+				Description: pulumi.String(customRole.Description),
+				Permissions: pulumi.ToStringArray(customRole.Permissions),
+			}
+			_, err := github.NewOrganizationCustomRole(ctx, customRole.Name, roleArgs)
+			if err != nil {
+				return err
+			}
+		}
+
 		// sync users
 		for _, member := range p.Config.Users {
 			_, err := github.NewMembership(ctx, member.Username, &github.MembershipArgs{

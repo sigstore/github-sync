@@ -4,6 +4,7 @@ type Config struct {
 	Users        []User       `yaml:"users"`
 	Teams        []Team       `yaml:"teams"`
 	Repositories []Repository `yaml:"repositories"`
+	CustomRoles  []CustomRole `yaml:"repositoryRoles"`
 }
 
 type User struct {
@@ -94,4 +95,11 @@ type BranchProtection struct {
 	StatusChecks                  []string `yaml:"statusChecks"`
 	RequireBranchesUpToDate       bool     `yaml:"requireBranchesUpToDate"`
 	PushRestrictions              []string `yaml:"pushRestrictions"`
+}
+
+type CustomRole struct {
+	Name        string   `yaml:"name"`
+	BaseRole    string   `yaml:"baseRole"`
+	Description string   `yaml:"description"`
+	Permissions []string `yaml:"permissions"`
 }
