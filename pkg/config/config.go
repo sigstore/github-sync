@@ -4,7 +4,7 @@ type Config struct {
 	Users        []User       `yaml:"users"`
 	Teams        []Team       `yaml:"teams"`
 	Repositories []Repository `yaml:"repositories"`
-	CustomRoles  []CustomRole `yaml:"repositoryRoles"`
+	CustomRoles  []CustomRole `yaml:"customRoles"`
 }
 
 type User struct {

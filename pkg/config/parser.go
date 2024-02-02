@@ -33,6 +33,10 @@ func (p *Parser) Parse(reader io.Reader) error {
 		return fmt.Errorf("failed to parse yaml: %w", err)
 	}
 
+	if c.CustomRoles != nil {
+		p.Config.CustomRoles = append(p.Config.CustomRoles, c.CustomRoles...)
+	}
+
 	if c.Users != nil {
 		p.Config.Users = append(p.Config.Users, c.Users...)
 	}
