@@ -57,9 +57,10 @@ type Repository struct {
 }
 
 type Pages struct {
-	CNAME  string `yaml:"cname"`
-	Branch string `yaml:"branch"`
-	Path   string `yaml:"path"`
+	CNAME     string `yaml:"cname"`
+	Branch    string `yaml:"branch"`
+	BuildType string `yaml:"buildType"`
+	Path      string `yaml:"path"`
 }
 
 type Template struct {

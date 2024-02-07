@@ -117,7 +117,14 @@ func main() {
 				WebCommitSignoffRequired: pulumi.Bool(repo.WebCommitSignoffRequired),
 			}
 
-			if repo.Pages.Branch != "" {
+			if repo.Pages.BuildType == "workflow" {
+				repoPages := &github.RepositoryPagesArgs{
+					BuildType: pulumi.String("workflow"),
+				}
+				if repo.Pages.CNAME != "" {
+					repoPages.Cname = pulumi.String(repo.Pages.CNAME)
+				}
+			} else if repo.Pages.Branch != "" {
 				repoPages := &github.RepositoryPagesArgs{}
 
 				source := &github.RepositoryPagesSourceArgs{
