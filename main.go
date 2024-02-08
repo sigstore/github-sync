@@ -124,6 +124,7 @@ func main() {
 				if repo.Pages.CNAME != "" {
 					repoPages.Cname = pulumi.String(repo.Pages.CNAME)
 				}
+				repoSync.Pages = repoPages
 			} else if repo.Pages.Branch != "" {
 				repoPages := &github.RepositoryPagesArgs{}
 
