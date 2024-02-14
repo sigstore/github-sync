@@ -193,6 +193,22 @@ func main() {
 					dismissalRestrictionsID = append(dismissalRestrictionsID, team.NodeId)
 				}
 
+				var PullRequestBypassersID []string
+				for _, teamOrUser := range protection.PullRequestBypassers {
+					team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
+						Slug: strings.ToLower(strings.ReplaceAll(teamOrUser, " ", "-")),
+					}, nil)
+					if err != nil {
+						user, err := github.GetUser(ctx, &github.GetUserArgs{Username: teamOrUser})
+						if err != nil {
+							return err
+						}
+						PullRequestBypassersID = append(PullRequestBypassersID, user.NodeId)
+					} else {
+						PullRequestBypassersID = append(PullRequestBypassersID, team.NodeId)
+					}
+				}
+
 				_, err = github.NewBranchProtection(ctx, fmt.Sprintf("%s-%s", repo.Name, protection.Pattern), &github.BranchProtectionArgs{
 					RepositoryId:                  newRepo.NodeId,
 					Pattern:                       pulumi.String(protection.Pattern),
@@ -215,6 +231,7 @@ func main() {
 							RequireCodeOwnerReviews:      pulumi.Bool(protection.RequireCodeOwnerReviews),
 							RequiredApprovingReviewCount: pulumi.Int(protection.RequiredApprovingReviewCount),
 							DismissalRestrictions:        pulumi.ToStringArray(dismissalRestrictionsID),
+							PullRequestBypassers:         pulumi.ToStringArray(PullRequestBypassersID),
 							RequireLastPushApproval:      pulumi.Bool(protection.RequireLastPushApproval),
 						},
 					},
