@@ -86,6 +86,7 @@ type BranchProtection struct {
 	AllowsForcePushes             bool     `yaml:"allowsForcePushes"`
 	DismissStaleReviews           bool     `yaml:"dismissStaleReviews"`
 	DismissalRestrictions         []string `yaml:"dismissalRestrictions"`
+	PullRequestBypassers          []string `yaml:"pullRequestBypassers"`
 	RestrictDismissals            bool     `yaml:"restrictDismissals"`
 	RequiredLinearHistory         bool     `yaml:"requiredLinearHistory"`
 	RequireSignedCommits          bool     `yaml:"requireSignedCommits"`
