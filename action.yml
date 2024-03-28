@@ -52,7 +52,7 @@ runs:
       working-directory: '${{ env.PULUMI_GO_CODE }}'
       shell: bash
 
-    - uses: pulumi/actions@76683de37aa44910871ba6cef36557780f2e41d1 # v5.1.1
+    - uses: pulumi/actions@4b4f7c2d7fc9b1f9db3cc704398a9c25d43da056 # v5.2.0
       with:
         command: '${{ inputs.pulumi_command }}'
         stack-name: '${{ inputs.stack_name }}'
