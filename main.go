@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	github "github.com/pulumi/pulumi-github/sdk/v6/go/github"
@@ -155,6 +156,55 @@ func main() {
 			newRepo, err := github.NewRepository(ctx, repo.Name, repoSync, pulumi.Protect(true))
 			if err != nil {
 				return err
+			}
+
+			for _, env := range repo.Environments {
+				var reviewerIDs []int
+				for _, username := range env.Reviewers {
+					user, err := github.GetUser(ctx, &github.GetUserArgs{Username: username})
+					if err != nil {
+						return err
+					}
+					userID, err := strconv.Atoi(user.Id)
+					if err != nil {
+						return err
+					}
+					reviewerIDs = append(reviewerIDs, userID)
+				}
+
+				pulumiEnv, err := github.NewRepositoryEnvironment(ctx, env.Name, &github.RepositoryEnvironmentArgs{
+					Environment:     pulumi.String(env.Name),
+					Repository:      newRepo.Name,
+					CanAdminsBypass: pulumi.Bool(env.CanAdminsBypass),
+					DeploymentBranchPolicy: &github.RepositoryEnvironmentDeploymentBranchPolicyArgs{
+						ProtectedBranches:    pulumi.Bool(env.ProtectedBranches),
+						CustomBranchPolicies: pulumi.Bool(env.CustomBranchPolicies),
+					},
+					PreventSelfReview: pulumi.Bool(env.PreventSelfReview),
+					Reviewers: github.RepositoryEnvironmentReviewerArray{
+						&github.RepositoryEnvironmentReviewerArgs{
+							Users: pulumi.ToIntArray(reviewerIDs),
+						},
+					},
+					WaitTimer: pulumi.Int(env.WaitTimer),
+				})
+				if err != nil {
+					return err
+				}
+
+				for _, policy := range env.DeploymentBranchPolicies {
+					_, err = github.NewRepositoryDeploymentBranchPolicy(ctx, policy.Name, &github.RepositoryDeploymentBranchPolicyArgs{
+						Repository:      newRepo.Name,
+						EnvironmentName: pulumi.String(env.Name),
+						Name:            pulumi.String(policy.Pattern),
+					}, pulumi.DependsOn([]pulumi.Resource{
+						pulumiEnv,
+					}))
+
+					if err != nil {
+						return err
+					}
+				}
 			}
 
 			_, err = github.NewBranchDefault(ctx, repo.Name, &github.BranchDefaultArgs{
