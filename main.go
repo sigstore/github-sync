@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	github "github.com/pulumi/pulumi-github/sdk/v5/go/github"
+	github "github.com/pulumi/pulumi-github/sdk/v6/go/github"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 
@@ -235,7 +235,11 @@ func main() {
 							RequireLastPushApproval:      pulumi.Bool(protection.RequireLastPushApproval),
 						},
 					},
-					PushRestrictions: pulumi.ToStringArray(pushRestrictionsID),
+					RestrictPushes: github.BranchProtectionRestrictPushArray{
+						&github.BranchProtectionRestrictPushArgs{
+							PushAllowances: pulumi.ToStringArray(pushRestrictionsID),
+						},
+					},
 				})
 				if err != nil {
 					return err
