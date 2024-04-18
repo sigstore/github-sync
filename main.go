@@ -209,7 +209,7 @@ func main() {
 					}
 				}
 
-				_, err = github.NewBranchProtection(ctx, fmt.Sprintf("%s-%s", repo.Name, protection.Pattern), &github.BranchProtectionArgs{
+				branchProtectionArgs := &github.BranchProtectionArgs{
 					RepositoryId:                  newRepo.NodeId,
 					Pattern:                       pulumi.String(protection.Pattern),
 					EnforceAdmins:                 pulumi.Bool(protection.EnforceAdmins),
@@ -235,12 +235,18 @@ func main() {
 							RequireLastPushApproval:      pulumi.Bool(protection.RequireLastPushApproval),
 						},
 					},
-					RestrictPushes: github.BranchProtectionRestrictPushArray{
+				}
+
+				if len(pushRestrictionsID) > 0 {
+					// if project does not list any users in pushRestrictions, assume no push restriction
+					branchProtectionArgs.RestrictPushes = github.BranchProtectionRestrictPushArray{
 						&github.BranchProtectionRestrictPushArgs{
 							PushAllowances: pulumi.ToStringArray(pushRestrictionsID),
 						},
-					},
-				})
+					}
+				}
+
+				_, err = github.NewBranchProtection(ctx, fmt.Sprintf("%s-%s", repo.Name, protection.Pattern), branchProtectionArgs)
 				if err != nil {
 					return err
 				}
