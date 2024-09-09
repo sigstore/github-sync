@@ -4,8 +4,8 @@ go 1.22
 
 require (
 	github.com/bmatcuk/doublestar/v3 v3.0.0
-	github.com/pulumi/pulumi-github/sdk/v6 v6.2.3
-	github.com/pulumi/pulumi/sdk/v3 v3.129.0
+	github.com/pulumi/pulumi-github/sdk/v6 v6.2.5
+	github.com/pulumi/pulumi/sdk/v3 v3.130.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
