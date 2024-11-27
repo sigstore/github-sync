@@ -25,6 +25,22 @@ type Team struct {
 	ParentTeamID int    `yaml:"parentTeamId"`
 }
 
+type DeploymentBranchPolicy struct {
+	Name    string `yaml:"name"`
+	Pattern string `yaml:"pattern"`
+}
+
+type Environment struct {
+	Name                     string                   `yaml:"name"`
+	CanAdminsBypass          bool                     `yaml:"canAdminsBypass"`
+	Reviewers                []string                 `yaml:"reviewers"`
+	PreventSelfReview        bool                     `yaml:"preventSelfReview"`
+	WaitTimer                int                      `yaml:"waitTimer"`
+	ProtectedBranches        bool                     `yaml:"protectedBranches"`
+	CustomBranchPolicies     bool                     `yaml:"protectedBranches"`
+	DeploymentBranchPolicies []DeploymentBranchPolicy `yaml:"deploymentBranchPolicies"`
+}
+
 type Repository struct {
 	AllowAutoMerge           bool               `yaml:"allowAutoMerge"`
 	AllowMergeCommit         bool               `yaml:"allowMergeCommit"`
@@ -33,6 +49,7 @@ type Repository struct {
 	Archived                 bool               `yaml:"archived"`
 	AutoInit                 bool               `yaml:"autoInit"`
 	DeleteBranchOnMerge      bool               `yaml:"deleteBranchOnMerge"`
+	Environments             []Environment      `yaml:"environments"`
 	HasDiscussions           bool               `yaml:"hasDiscussions"`
 	HasDownloads             bool               `yaml:"hasDownloads"`
 	HasIssues                bool               `yaml:"hasIssues"`
