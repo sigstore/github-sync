@@ -34,10 +34,6 @@ linters:
     - unconvert
     - unparam
     - whitespace
-output:
-  uniq-by-line: false
-  max-issues-per-linter: 0
-  max-same-issues: 0
 run:
   issues-exit-code: 1
   timeout: 10m
