@@ -13,27 +13,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
----
+version: "2"
+run:
+  issues-exit-code: 1
 linters:
   enable:
     - asciicheck
-    - unused
-    - errcheck
     - errorlint
     - forbidigo
-    - gofmt
-    - goimports
-    - gosec
     - gocritic
+    - gosec
     - importas
+    - misspell
     - prealloc
     - revive
-    - misspell
-    - stylecheck
+    - staticcheck
     - tparallel
     - unconvert
     - unparam
     - whitespace
-run:
-  issues-exit-code: 1
-  timeout: 10m
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
