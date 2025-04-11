@@ -125,6 +125,21 @@ func main() {
 				if repo.Pages.CNAME != "" {
 					repoPages.Cname = pulumi.String(repo.Pages.CNAME)
 				}
+				var source *github.RepositoryPagesSourceArgs
+				if repo.Pages.Branch != "" {
+					source = &github.RepositoryPagesSourceArgs{
+						Branch: pulumi.String(repo.Pages.Branch),
+					}
+				}
+
+				if repo.Pages.Path != "" {
+					if source == nil {
+						source = &github.RepositoryPagesSourceArgs{}
+					}
+					source.Path = pulumi.String(repo.Pages.Path)
+				}
+
+				repoPages.Source = source
 				repoSync.Pages = repoPages
 			} else if repo.Pages.Branch != "" {
 				repoPages := &github.RepositoryPagesArgs{}
