@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/pulumi/pulumi-github/sdk/v6 v6.7.2
-	github.com/pulumi/pulumi/sdk/v3 v3.169.0
+	github.com/pulumi/pulumi/sdk/v3 v3.170.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
