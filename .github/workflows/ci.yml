@@ -39,6 +39,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           check-latest: true
+          cache: false
 
       - name: build
         run: go build ./...
