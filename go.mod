@@ -5,7 +5,7 @@ go 1.25
 require (
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/pulumi/pulumi-github/sdk/v6 v6.7.3
-	github.com/pulumi/pulumi/sdk/v3 v3.197.0
+	github.com/pulumi/pulumi/sdk/v3 v3.198.0
 	sigs.k8s.io/yaml v1.6.0
 )
 
@@ -64,7 +64,6 @@ require (
 	github.com/pulumi/esc v0.17.0 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/skeema/knownhosts v1.3.0 // indirect
