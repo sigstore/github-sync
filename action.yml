@@ -35,7 +35,7 @@ runs:
       with:
         go-version-file: '${{ github.action_path }}/go.mod'
         check-latest: true
-        cache-dependency-path: '${{ github.action_path }}/go.sum'
+        cache: false
 
     - name: Copy config to run pulumi
       env:
