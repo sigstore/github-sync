@@ -5,13 +5,12 @@ go 1.25
 require (
 	github.com/bmatcuk/doublestar/v3 v3.0.0
 	github.com/pulumi/pulumi-github/sdk/v6 v6.9.1
-	github.com/pulumi/pulumi/sdk/v3 v3.208.0
+	github.com/pulumi/pulumi/sdk/v3 v3.209.0
 	sigs.k8s.io/yaml v1.6.0
 )
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
-	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
