@@ -57,15 +57,18 @@ func (p *Parser) ParseFile(path, basedir string) error {
 		return nil
 	}
 	p.parsed[path] = struct{}{}
+
+	rel, err := filepath.Rel(filepath.Clean(basedir), filepath.Clean(path))
+	if err != nil {
+		return fmt.Errorf("target cannot be made relative to base: %w", err)
+	} else if strings.HasPrefix(rel, "..") {
+		return fmt.Errorf("path %q is outside intended scope of %q", path, basedir)
+	}
 	f, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("failed to open %s: %w", path, err)
 	}
 	defer f.Close()
-
-	if !strings.HasPrefix(path, basedir) {
-		return fmt.Errorf("%q is not a prefix of %q", basedir, path)
-	}
 
 	if err := p.Parse(f); err != nil {
 		return fmt.Errorf("failed to parse %s: %w", path, err)
