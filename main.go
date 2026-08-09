@@ -119,32 +119,32 @@ func main() {
 			}
 
 			if repo.Pages.BuildType == "workflow" {
-				repoPages := &github.RepositoryPagesArgs{
+				repoPages := github.RepositoryPagesTypeArgs{
 					BuildType: pulumi.String("workflow"),
 				}
 				if repo.Pages.CNAME != "" {
 					repoPages.Cname = pulumi.String(repo.Pages.CNAME)
 				}
-				var source *github.RepositoryPagesSourceArgs
+				var source github.RepositoryPagesSourceArgs
+				hasSource := false
 				if repo.Pages.Branch != "" {
-					source = &github.RepositoryPagesSourceArgs{
-						Branch: pulumi.String(repo.Pages.Branch),
-					}
+					source.Branch = pulumi.String(repo.Pages.Branch)
+					hasSource = true
 				}
 
 				if repo.Pages.Path != "" {
-					if source == nil {
-						source = &github.RepositoryPagesSourceArgs{}
-					}
 					source.Path = pulumi.String(repo.Pages.Path)
+					hasSource = true
 				}
 
-				repoPages.Source = source
+				if hasSource {
+					repoPages.Source = source
+				}
 				repoSync.Pages = repoPages
 			} else if repo.Pages.Branch != "" {
-				repoPages := &github.RepositoryPagesArgs{}
+				repoPages := github.RepositoryPagesTypeArgs{}
 
-				source := &github.RepositoryPagesSourceArgs{
+				source := github.RepositoryPagesSourceArgs{
 					Branch: pulumi.String(repo.Pages.Branch),
 				}
 
