@@ -62,10 +62,9 @@ func main() {
 			syncedTeams := strings.ToLower(strings.ReplaceAll(team.Name, " ", "-"))
 
 			teamArgs := &github.TeamArgs{
-				Name:                    pulumi.String(team.Name),
-				CreateDefaultMaintainer: pulumi.Bool(false),
-				Description:             pulumi.String(team.Description),
-				Privacy:                 pulumi.String(team.Privacy),
+				Name:        pulumi.String(team.Name),
+				Description: pulumi.String(team.Description),
+				Privacy:     pulumi.String(team.Privacy),
 			}
 			if team.ParentTeamID != 0 {
 				teamArgs.ParentTeamId = pulumi.String(fmt.Sprintf("%d", team.ParentTeamID))
