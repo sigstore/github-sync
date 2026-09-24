@@ -5,9 +5,10 @@ description: |
 inputs:
   work_dir:
     required: false
-    description: 'Where the Pulumi config are located.'
+    description: 'Where the Pulumi stack config (Pulumi.<stack>.yaml) is located, relative to the workspace.'
+    default: '.'
   config_directory:
-    required: false
+    required: true
     description: 'Where the Github config are located.'
   stack_name:
     required: true
@@ -25,7 +26,11 @@ inputs:
     default: 'false'
   gh_token:
     required: true
-    description: 'GitHub Token with pull_request scope to be able to post comments in the PR'
+    description: 'GitHub Token with pull_request scope to be able to post comments in the PR, and contents read to fetch the stack config on PR events'
+  project_name:
+    required: false
+    description: 'Pulumi project name. Must match the project the stack belongs to.'
+    default: 'sigstore-github-sync'
 
 runs:
   using: "composite"
@@ -37,18 +42,76 @@ runs:
         check-latest: true
         cache: false
 
-    - name: Copy config to run pulumi
+    # Pulumi runs from a fresh directory holding only:
+    #  - the program and a generated Pulumi.yaml, from this action. Pulumi.yaml
+    #    decides which program runs, so it never comes from the caller.
+    #  - Pulumi.<stack>.yaml from a trusted ref. It is not inert: settings such
+    #    as github:baseUrl decide where the decrypted github:token is sent, and
+    #    an `environment:` block can import other Pulumi ESC environments. On
+    #    PR events it is fetched from the base commit via the API, never read
+    #    from the (possibly attacker-controlled) checkout. Unknown events fail.
+    #  - regular *.yaml files from config_directory, which may come from a PR.
+    - name: Stage pulumi project
+      id: stage
       env:
         CONFIG_DIRECTORY: ${{ inputs.config_directory }}
         WORK_DIR: ${{ inputs.work_dir }}
+        STACK_NAME: ${{ inputs.stack_name }}
+        PROJECT_NAME: ${{ inputs.project_name }}
+        EVENT_NAME: ${{ github.event_name }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        BASE_REPO: ${{ github.event.pull_request.base.repo.full_name }}
+        GH_TOKEN: ${{ inputs.gh_token }}
       run: |
-        cp -r ${CONFIG_DIRECTORY} $GITHUB_ACTION_PATH
-        cp ${WORK_DIR}/Pulumi*.yaml $GITHUB_ACTION_PATH
+        set -euo pipefail
+        fail() { echo "::error::$*"; exit 1; }
+
+        name_re='^[A-Za-z0-9][A-Za-z0-9_.-]*$'
+        stack="${STACK_NAME##*/}"
+        [[ "${PROJECT_NAME}" =~ ${name_re} ]] || fail "invalid project_name: ${PROJECT_NAME}"
+        [[ "${stack}" =~ ${name_re} ]] || fail "invalid stack_name: ${STACK_NAME}"
+        cfg="Pulumi.${stack}.yaml"
+
+        # work_dir as a lexically normalized path relative to the repo root.
+        rel="$(realpath -ms --relative-to="${GITHUB_WORKSPACE}" -- "${WORK_DIR}")"
+        [[ "${rel}" != .. && "${rel}" != ../* ]] || fail "work_dir '${WORK_DIR}' must be inside the workspace"
+        cfg_path="${rel}/${cfg}"
+        cfg_path="${cfg_path#./}"
+
+        proj="$(mktemp -d "${RUNNER_TEMP}/github-sync.XXXXXX")"
+        cp -R "${GITHUB_ACTION_PATH}"/{main.go,go.mod,go.sum,pkg} "${proj}/"
+        printf 'name: %s\nruntime: go\ndescription: Sync GitHub users, collaborators and repositories for an organization\n' \
+          "${PROJECT_NAME}" > "${proj}/Pulumi.yaml"
+
+        if [[ -n "${BASE_SHA}" ]]; then
+          gh api -H 'Accept: application/vnd.github.raw+json' \
+            "repos/${BASE_REPO}/contents/${cfg_path}?ref=${BASE_SHA}" > "${proj}/${cfg}" \
+            || fail "could not fetch ${cfg_path} at base ${BASE_SHA}; stack config must exist on the base branch"
+          echo "::notice::${cfg_path} is taken from the base commit; changes to it in this PR take effect only after merge."
+        elif [[ "${EVENT_NAME}" =~ ^(push|workflow_dispatch|schedule)$ ]]; then
+          cp -- "${GITHUB_WORKSPACE}/${cfg_path}" "${proj}/${cfg}"
+        else
+          fail "unsupported event '${EVENT_NAME}': the stack config source cannot be trusted"
+        fi
+
+        src="$(realpath -e -- "${CONFIG_DIRECTORY}")" || fail "config_directory '${CONFIG_DIRECTORY}' not found"
+        ws="$(realpath -e -- "${GITHUB_WORKSPACE}")"
+        [[ -d "${src}" && "${src}" == "${ws}"/* ]] || fail "config_directory '${CONFIG_DIRECTORY}' must be a directory inside the workspace"
+        data_name="$(basename -- "${CONFIG_DIRECTORY%/}")"
+        [[ "${data_name}" =~ ${name_re} ]] || fail "invalid config_directory name: ${data_name}"
+        dest="${proj}/${data_name}"
+        mkdir -- "${dest}" || fail "config_directory name '${data_name}' collides with a program file"
+        # find does not follow symlinks, so only regular files are copied.
+        (cd "${src}" && find . -type f -name '*.yaml' -exec cp --parents -t "${dest}" {} +)
+
+        echo "dir=${proj}" >> "${GITHUB_OUTPUT}"
       shell: bash
 
     - name: Go mod download
       run: go mod download
-      working-directory: '${{ github.action_path }}'
+      working-directory: '${{ steps.stage.outputs.dir }}'
+      env:
+        GOWORK: 'off'
       shell: bash
 
     - uses: pulumi/actions@8e5e406f4007fca908480587cb9893c07090f58d # v7.0.0
@@ -56,10 +119,11 @@ runs:
         command: '${{ inputs.pulumi_command }}'
         stack-name: '${{ inputs.stack_name }}'
         refresh: false
-        work-dir: '${{ github.action_path }}'
+        work-dir: '${{ steps.stage.outputs.dir }}'
         comment-on-pr: ${{ inputs.comment_on_pr }}
         github-token: ${{ inputs.gh_token }}
         diff: true
         edit-pr-comment: true
       env:
+        GOWORK: 'off'
         PULUMI_ACCESS_TOKEN: ${{ inputs.pulumi_access_token }}
