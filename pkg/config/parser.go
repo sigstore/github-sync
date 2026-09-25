@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bmatcuk/doublestar/v3"
+	"github.com/bmatcuk/doublestar/v4"
 	"sigs.k8s.io/yaml"
 )
 
@@ -78,7 +78,7 @@ func (p *Parser) ParseFile(path, basedir string) error {
 }
 
 func (p *Parser) ParseDir(path string) error {
-	matches, err := doublestar.Glob(filepath.Join(path, "**/*.yaml"))
+	matches, err := doublestar.FilepathGlob(filepath.Join(path, "**/*.yaml"))
 	if err != nil {
 		return fmt.Errorf("failed to find config files: %w", err)
 	}

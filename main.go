@@ -105,21 +105,40 @@ func main() {
 				Archived:                 pulumi.Bool(repo.Archived),
 				DeleteBranchOnMerge:      pulumi.Bool(repo.DeleteBranchOnMerge),
 				HasDiscussions:           pulumi.Bool(repo.HasDiscussions),
-				HasDownloads:             pulumi.Bool(repo.HasDownloads),
 				HasIssues:                pulumi.Bool(repo.HasIssues),
 				HasProjects:              pulumi.Bool(repo.HasProjects),
 				HasWiki:                  pulumi.Bool(repo.HasWiki),
 				LicenseTemplate:          pulumi.String(repo.LicenseTemplate),
 				Topics:                   pulumi.ToStringArray(repo.Topics),
-				VulnerabilityAlerts:      pulumi.Bool(repo.VulnerabilityAlerts),
 				Visibility:               pulumi.String(repo.Visibility),
 				IsTemplate:               pulumi.Bool(repo.IsTemplate),
 				WebCommitSignoffRequired: pulumi.Bool(repo.WebCommitSignoffRequired),
 			}
 
+			if repo.Template.Owner != "" && repo.Template.Repository != "" {
+				repoSync.Template = &github.RepositoryTemplateArgs{
+					Owner:      pulumi.String(repo.Template.Owner),
+					Repository: pulumi.String(repo.Template.Repository),
+				}
+			}
+
+			newRepo, err := github.NewRepository(ctx, repo.Name, repoSync, pulumi.Protect(true))
+			if err != nil {
+				return err
+			}
+
+			_, err = github.NewRepositoryVulnerabilityAlerts(ctx, repo.Name, &github.RepositoryVulnerabilityAlertsArgs{
+				Enabled:    pulumi.Bool(repo.VulnerabilityAlerts),
+				Repository: pulumi.String(repo.Name),
+			})
+			if err != nil {
+				return err
+			}
+
 			if repo.Pages.BuildType == "workflow" {
 				repoPages := &github.RepositoryPagesArgs{
-					BuildType: pulumi.String("workflow"),
+					Repository: pulumi.String(repo.Name),
+					BuildType:  pulumi.String("workflow"),
 				}
 				if repo.Pages.CNAME != "" {
 					repoPages.Cname = pulumi.String(repo.Pages.CNAME)
@@ -139,9 +158,15 @@ func main() {
 				}
 
 				repoPages.Source = source
-				repoSync.Pages = repoPages
+
+				_, err = github.NewRepositoryPages(ctx, repo.Name, repoPages)
+				if err != nil {
+					return err
+				}
 			} else if repo.Pages.Branch != "" {
-				repoPages := &github.RepositoryPagesArgs{}
+				repoPages := &github.RepositoryPagesArgs{
+					Repository: pulumi.String(repo.Name),
+				}
 
 				source := &github.RepositoryPagesSourceArgs{
 					Branch: pulumi.String(repo.Pages.Branch),
@@ -157,19 +182,10 @@ func main() {
 					repoPages.Cname = pulumi.String(repo.Pages.CNAME)
 				}
 
-				repoSync.Pages = repoPages
-			}
-
-			if repo.Template.Owner != "" && repo.Template.Repository != "" {
-				repoSync.Template = &github.RepositoryTemplateArgs{
-					Owner:      pulumi.String(repo.Template.Owner),
-					Repository: pulumi.String(repo.Template.Repository),
+				_, err = github.NewRepositoryPages(ctx, repo.Name, repoPages)
+				if err != nil {
+					return err
 				}
-			}
-
-			newRepo, err := github.NewRepository(ctx, repo.Name, repoSync, pulumi.Protect(true))
-			if err != nil {
-				return err
 			}
 
 			_, err = github.NewBranchDefault(ctx, repo.Name, &github.BranchDefaultArgs{
