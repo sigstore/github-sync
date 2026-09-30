@@ -139,8 +139,16 @@ manually to unlock the required resource.
 You can use this project to sync your own GitHub Organization. For that you need to follow some steps:
 
 1. Have a repository and add a directory called `github-sync` and inside that one another called `github-data`
-2. In the root of `github-sync` will have the Pulumi config `Pulumi.yaml` and `Pulumi.STACK_NAME.yaml`
+2. In the root of `github-sync` will have the Pulumi stack config `Pulumi.STACK_NAME.yaml`. A
+   `Pulumi.yaml` is not needed, the action generates it. If your Pulumi project is not named
+   `sigstore-github-sync`, set the `project_name` input to match. On pull request events the action
+   fetches `Pulumi.STACK_NAME.yaml` from the PR's base commit through the GitHub API (so `gh_token`
+   needs `contents: read`), never from the PR checkout, so changes to stack config are not
+   previewed and take effect only after merge. The repository must be checked out at the
+   workspace root. On `push`, `workflow_dispatch` and `schedule` events the local file is used;
+   any other event is rejected.
 3. In the directory `github-sync/github-data` will hold the yamls configuration for your GitHub org.
+   Only regular `*.yaml` files are used; symlinks are ignored.
 4. Create two Github Actions, one for the Pull Request preview and the other when merge the changes to apply the config.
 
 - Pull request Action:
@@ -158,13 +166,22 @@ on:
 
 jobs:
   preview:
-    name: Preview Pulimi changes
+    name: Preview Pulumi changes
     runs-on: ubuntu-latest
+    # Use an environment with required reviewers so the Pulumi token is only
+    # released once someone approves the run.
+    environment: github-sync-preview
+
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
       with:
         ref: ${{ github.event.pull_request.head.sha }}
+        persist-credentials: false
+        allow-unsafe-pr-checkout: true
     - uses: sigstore/github-sync@main
       with:
         work_dir: ./github-sync
@@ -172,6 +189,7 @@ jobs:
         stack_name: STACK_NAME
         pulumi_access_token: ${{ secrets.PULUMI_TOKEN }}
         pulumi_command: preview
+        gh_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 - Push to the main branch:
@@ -193,7 +211,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
     - uses: sigstore/github-sync@main
       with:
         work_dir: ./github-sync
@@ -201,4 +221,5 @@ jobs:
         stack_name: STACK_NAME
         pulumi_access_token: ${{ secrets.PULUMI_TOKEN }}
         pulumi_command: up
+        gh_token: ${{ secrets.GITHUB_TOKEN }}
 ```
