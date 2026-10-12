@@ -127,12 +127,14 @@ func main() {
 				return err
 			}
 
-			_, err = github.NewRepositoryVulnerabilityAlerts(ctx, repo.Name, &github.RepositoryVulnerabilityAlertsArgs{
-				Enabled:    pulumi.Bool(repo.VulnerabilityAlerts),
-				Repository: pulumi.String(repo.Name),
-			})
-			if err != nil {
-				return err
+			if !repo.Archived {
+				_, err = github.NewRepositoryVulnerabilityAlerts(ctx, repo.Name, &github.RepositoryVulnerabilityAlertsArgs{
+					Enabled:    pulumi.Bool(repo.VulnerabilityAlerts),
+					Repository: pulumi.String(repo.Name),
+				})
+				if err != nil {
+					return err
+				}
 			}
 
 			if repo.Pages.BuildType == "workflow" {
