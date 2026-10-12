@@ -122,7 +122,7 @@ func main() {
 				}
 			}
 
-			newRepo, err := github.NewRepository(ctx, repo.Name, repoSync, pulumi.Protect(true))
+			newRepo, err := github.NewRepository(ctx, repo.Name, repoSync, pulumi.Protect(true), pulumi.IgnoreChanges([]string{"pages"}))
 			if err != nil {
 				return err
 			}
