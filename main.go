@@ -199,47 +199,19 @@ func main() {
 			}
 
 			for _, protection := range repo.BranchesProtection {
-				var pushRestrictionsID []string
-				for _, pushRestTeamOrUser := range protection.PushRestrictions {
-					team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
-						Slug: strings.ToLower(strings.ReplaceAll(pushRestTeamOrUser, " ", "-")),
-					}, nil)
-					if err != nil {
-						user, err := github.GetUser(ctx, &github.GetUserArgs{Username: pushRestTeamOrUser})
-						if err != nil {
-							return err
-						}
-						pushRestrictionsID = append(pushRestrictionsID, user.NodeId)
-					} else {
-						pushRestrictionsID = append(pushRestrictionsID, team.NodeId)
-					}
+				pushRestrictionsID, err := lookupActorNodeIDs(ctx, protection.PushRestrictions)
+				if err != nil {
+					return err
 				}
 
-				var dismissalRestrictionsID []string
-				for _, dismissRestrictionTeam := range protection.DismissalRestrictions {
-					team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
-						Slug: strings.ToLower(strings.ReplaceAll(dismissRestrictionTeam, " ", "-")),
-					}, nil)
-					if err != nil {
-						return err
-					}
-					dismissalRestrictionsID = append(dismissalRestrictionsID, team.NodeId)
+				dismissalRestrictionsID, err := lookupActorNodeIDs(ctx, protection.DismissalRestrictions)
+				if err != nil {
+					return err
 				}
 
-				var pullRequestBypassersID []string
-				for _, teamOrUser := range protection.PullRequestBypassers {
-					team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
-						Slug: strings.ToLower(strings.ReplaceAll(teamOrUser, " ", "-")),
-					}, nil)
-					if err != nil {
-						user, err := github.GetUser(ctx, &github.GetUserArgs{Username: teamOrUser})
-						if err != nil {
-							return err
-						}
-						pullRequestBypassersID = append(pullRequestBypassersID, user.NodeId)
-					} else {
-						pullRequestBypassersID = append(pullRequestBypassersID, team.NodeId)
-					}
+				pullRequestBypassersID, err := lookupActorNodeIDs(ctx, protection.PullRequestBypassers)
+				if err != nil {
+					return err
 				}
 
 				branchProtectionArgs := &github.BranchProtectionArgs{
@@ -320,4 +292,45 @@ func main() {
 
 		return nil
 	})
+}
+
+func lookupActorNodeIDs(ctx *pulumi.Context, actors []string) ([]string, error) {
+	nodeIDs := make([]string, 0, len(actors))
+	for _, actor := range actors {
+		nodeID, err := lookupActorNodeID(ctx, actor)
+		if err != nil {
+			return nil, err
+		}
+		nodeIDs = append(nodeIDs, nodeID)
+	}
+	return nodeIDs, nil
+}
+
+func lookupActorNodeID(ctx *pulumi.Context, actor string) (string, error) {
+	// GitHub Apps must be specified with a "[bot]" suffix (e.g. "my-app[bot]").
+	// GitHub Users and GitHub Apps live in separate global namespaces that do not
+	// reserve each other's names, so falling back between GetUser and GetGithubApp
+	// for the same string would allow username/app-slug squatting. Normal GitHub
+	// usernames and team slugs cannot contain brackets.
+	if appSlug, ok := strings.CutSuffix(actor, "[bot]"); ok {
+		app, err := github.GetGithubApp(ctx, &github.GetGithubAppArgs{Slug: appSlug})
+		if err != nil {
+			return "", err
+		}
+		return app.NodeId, nil
+	}
+
+	team, err := github.LookupTeam(ctx, &github.LookupTeamArgs{
+		Slug: strings.ToLower(strings.ReplaceAll(actor, " ", "-")),
+	}, nil)
+	if err == nil {
+		return team.NodeId, nil
+	}
+
+	user, err := github.GetUser(ctx, &github.GetUserArgs{Username: actor})
+	if err == nil {
+		return user.NodeId, nil
+	}
+
+	return "", err
 }
