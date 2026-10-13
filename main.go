@@ -161,7 +161,7 @@ func main() {
 
 				repoPages.Source = source
 
-				_, err = github.NewRepositoryPages(ctx, repo.Name, repoPages, pulumi.Import(pulumi.ID(repo.Name)))
+				_, err = github.NewRepositoryPages(ctx, repo.Name, repoPages)
 				if err != nil {
 					return err
 				}
@@ -184,7 +184,7 @@ func main() {
 					repoPages.Cname = pulumi.String(repo.Pages.CNAME)
 				}
 
-				_, err = github.NewRepositoryPages(ctx, repo.Name, repoPages, pulumi.Import(pulumi.ID(repo.Name)))
+				_, err = github.NewRepositoryPages(ctx, repo.Name, repoPages)
 				if err != nil {
 					return err
 				}
