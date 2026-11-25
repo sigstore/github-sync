@@ -35,16 +35,19 @@ func main() {
 		}
 
 		// sync custom roles
+		customRoles := make(map[string]pulumi.Resource, len(p.Config.CustomRoles))
 		for _, customRole := range p.Config.CustomRoles {
-			roleArgs := &github.OrganizationCustomRoleArgs{
+			roleArgs := &github.OrganizationRepositoryRoleArgs{
+				Name:        pulumi.String(customRole.Name),
 				BaseRole:    pulumi.String(customRole.BaseRole),
 				Description: pulumi.String(customRole.Description),
 				Permissions: pulumi.ToStringArray(customRole.Permissions),
 			}
-			_, err := github.NewOrganizationCustomRole(ctx, customRole.Name, roleArgs)
+			role, err := github.NewOrganizationRepositoryRole(ctx, customRole.Name, roleArgs)
 			if err != nil {
 				return err
 			}
+			customRoles[customRole.Name] = role
 		}
 
 		// sync users
@@ -259,12 +262,16 @@ func main() {
 
 			for _, collaborator := range repo.Collaborators {
 				// sync collaborators
+				var opts []pulumi.ResourceOption
+				if role, ok := customRoles[collaborator.Permission]; ok {
+					opts = append(opts, pulumi.DependsOn([]pulumi.Resource{role}))
+				}
 				_, err := github.NewRepositoryCollaborator(ctx, fmt.Sprintf("%s-%s", repo.Name, collaborator.Username), &github.RepositoryCollaboratorArgs{
 					Permission:                pulumi.String(collaborator.Permission),
 					Repository:                pulumi.String(repo.Name),
 					Username:                  pulumi.String(collaborator.Username),
 					PermissionDiffSuppression: pulumi.Bool(false),
-				})
+				}, opts...)
 				if err != nil {
 					return err
 				}
@@ -279,11 +286,15 @@ func main() {
 				if team.ID != "" {
 					teamID = team.ID
 				}
+				var opts []pulumi.ResourceOption
+				if role, ok := customRoles[team.Permission]; ok {
+					opts = append(opts, pulumi.DependsOn([]pulumi.Resource{role}))
+				}
 				_, err := github.NewTeamRepository(ctx, fmt.Sprintf("%s-%s", repo.Name, formatedTeam), &github.TeamRepositoryArgs{
 					Permission: pulumi.String(team.Permission),
 					Repository: pulumi.String(repo.Name),
 					TeamId:     pulumi.String(teamID),
-				})
+				}, opts...)
 				if err != nil {
 					return err
 				}
