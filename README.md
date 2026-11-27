@@ -46,6 +46,27 @@ and add a new entry following the example
   description: Optional description
 ```
 
+## Add a new custom repository role
+
+To add a custom repository role (requires GitHub Enterprise Cloud), add a `customRoles` entry to a YAML file under `github-data/` (for example `github-data/custom-roles.yaml`):
+
+```yaml
+customRoles:
+  - name: security-advisory-triage
+    baseRole: read # Must be one of `read`, `triage`, `write`, or `maintain`.
+    description: Manage repository security advisories
+    permissions:
+      - <fine_grained_permission_name>
+```
+
+You can list the valid fine-grained permission names for your organization with:
+
+```sh
+gh api /orgs/<ORG>/repository-fine-grained-permissions --jq '.[].name'
+```
+
+Once defined, the custom role `name` can be used as the `permission` value for repository `collaborators` or `teams`.
+
 ## Add a new repository or update existing ones
 
 To add a new repository you should edit the file `github-data/repositories.yaml``
@@ -75,11 +96,11 @@ example:
   topics: []
   collaborators: []
     # - username: sigstore-bot
-    #   permission: push # Must be one of `pull`, `push`, `maintain`, `triage` or `admin` for organization-owned repositories.
+    #   permission: push # Must be one of `pull`, `push`, `maintain`, `triage`, `admin`, or the name of a custom repository role for organization-owned repositories.
   teams:
     - name: Core Team
       id: 4563391
-      permission: push # Must be one of `pull`, `triage`, `push`, `maintain`, or `admin`. Defaults to `pull`.
+      permission: push # Must be one of `pull`, `triage`, `push`, `maintain`, `admin`, or the name of a custom repository role. Defaults to `pull`.
 ```
 
 If you need to configure the GitHub Pages you can add the following definition
